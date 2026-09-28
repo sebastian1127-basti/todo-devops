@@ -1,12 +1,44 @@
-const sampleTasks = [
-  { id: 1, text: "Finish DevOps assignment", completed: false },
-  { id: 2, text: "Study Next.js fundamentals", completed: false },
-  { id: 3, text: "Set up Git repository", completed: true },
-];
+"use client";
+
+import { useState } from "react";
+
+type Task = {
+  text: string;
+  completed: boolean;
+};
 
 export default function Home() {
-  const completed = sampleTasks.filter((task) => task.completed).length;
-  const progress = Math.round((completed / sampleTasks.length) * 100);
+  const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const addTask = () => {
+    if (task.trim() === "") return;
+
+    setTasks((currentTasks) => [
+      ...currentTasks,
+      {
+        text: task.trim(),
+        completed: false,
+      },
+    ]);
+
+    setTask("");
+  };
+
+  const completeTask = (index: number) => {
+    setTasks((currentTasks) =>
+      currentTasks.map((item, i) =>
+        i === index ? { ...item, completed: !item.completed } : item
+      )
+    );
+  };
+
+  const deleteTask = (index: number) => {
+    setTasks((currentTasks) => currentTasks.filter((_, i) => i !== index));
+  };
+
+  const completed = tasks.filter((item) => item.completed).length;
+  const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 
   return (
     <main className="app-shell">
@@ -20,13 +52,13 @@ export default function Home() {
           <div className="hero-copy">
             <h1>My Task Flow</h1>
             <p>
-              An organized rhythm for the day, built to keep your priorities clear
-              and visible.
+              Organize your day with a clean, readable list that keeps your priorities
+              in view.
             </p>
           </div>
 
           <div className="hero-actions">
-            <button type="button" className="primary-btn">
+            <button type="button" className="primary-btn" onClick={addTask}>
               + Add task
             </button>
             <button type="button" className="secondary-btn">
@@ -47,11 +79,16 @@ export default function Home() {
           <div className="task-input-row">
             <input
               type="text"
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addTask();
+              }}
               placeholder="What do you need to do?"
               aria-label="New task"
               className="task-input"
             />
-            <button type="button" className="primary-btn compact">
+            <button type="button" className="primary-btn compact" onClick={addTask}>
               Add task
             </button>
           </div>
@@ -63,42 +100,49 @@ export default function Home() {
             </div>
             <div className="stat-card">
               <span>Pending</span>
-              <strong>{sampleTasks.length - completed}</strong>
+              <strong>{tasks.length - completed}</strong>
             </div>
             <div className="stat-card">
               <span>Total</span>
-              <strong>{sampleTasks.length}</strong>
+              <strong>{tasks.length}</strong>
             </div>
           </div>
 
           <div className="task-list-header">
             <h3>All tasks</h3>
-            <span>{sampleTasks.length} items</span>
+            <span>{tasks.length} items</span>
           </div>
 
           <ul className="task-list">
-            {sampleTasks.map((task) => (
-              <li
-                key={task.id}
-                className={`task-card ${task.completed ? "is-done" : ""}`}
-              >
-                <label className="task-check">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    readOnly
-                    aria-label={`Complete ${task.text}`}
-                  />
-                  <span className="checkmark" aria-hidden="true" />
-                </label>
+            {tasks.length === 0 ? (
+              <li className="empty-state">No tasks yet. Add one to get started.</li>
+            ) : (
+              tasks.map((item, index) => (
+                <li
+                  key={`${item.text}-${index}`}
+                  className={`task-card ${item.completed ? "is-done" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="task-check"
+                    onClick={() => completeTask(index)}
+                    aria-label={`Mark ${item.text} as ${item.completed ? "incomplete" : "complete"}`}
+                  >
+                    <span className={`checkmark ${item.completed ? "checked" : ""}`} aria-hidden="true" />
+                  </button>
 
-                <span className="task-text">{task.text}</span>
+                  <span className="task-text">{item.text}</span>
 
-                <button type="button" className="delete-btn">
-                  Delete
-                </button>
-              </li>
-            ))}
+                  <button
+                    type="button"
+                    className="delete-btn"
+                    onClick={() => deleteTask(index)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
         </section>
       </div>
