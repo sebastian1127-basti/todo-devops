@@ -9,7 +9,11 @@ type Task = {
 
 export default function Home() {
   const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([
+    { text: "Finish DevOps assignment", completed: false },
+    { text: "Study Next.js fundamentals", completed: false },
+    { text: "Set up Git repository", completed: true },
+  ]);
 
   const addTask = () => {
     if (task.trim() === "") return;
@@ -34,7 +38,9 @@ export default function Home() {
   };
 
   const deleteTask = (index: number) => {
-    setTasks((currentTasks) => currentTasks.filter((_, i) => i !== index));
+    const updatedTasks = tasks.filter((_, taskIndex) => taskIndex !== index);
+
+    setTasks(updatedTasks);
   };
 
   const completed = tasks.filter((item) => item.completed).length;
@@ -135,8 +141,8 @@ export default function Home() {
 
                   <button
                     type="button"
-                    className="delete-btn"
                     onClick={() => deleteTask(index)}
+                    className="text-red-500"
                   >
                     Delete
                   </button>
