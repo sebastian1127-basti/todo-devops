@@ -424,6 +424,11 @@ input {
     align-items: flex-start;
   }
 
+  .task-input,
+  .task-input-row .primary-btn {
+    width: 100%;
+  }
+
   .summary-row {
     grid-template-columns: 1fr;
   }
